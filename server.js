@@ -27,27 +27,27 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const port = process.env.port || process.env.PORT || 6565;
 
-// var config = {
-//   user: 'db_aa1d65_nodeserver_admin',
-//   password: '12345678_Har',
-//   server: 'SQL5110.site4now.net',
-//   database: 'db_aa1d65_nodeserver',
-//   options: {
-//     encrypt: true,
-//     trustServerCertificate: true,
-//   },
-// };
-
 var config = {
-  user: 'sa',
-  password: 'CRMEnergy4084',
-  server: '192.168.70.138',
-  database: 'EZ_CRM_Acc',
+  user: 'db_aa1d65_nodeserver_admin',
+  password: '12345678_Har',
+  server: 'SQL5110.site4now.net',
+  database: 'db_aa1d65_nodeserver',
   options: {
     encrypt: true,
     trustServerCertificate: true,
   },
 };
+
+// var config = {
+//   user: 'sa',
+//   password: 'CRMEnergy4084',
+//   server: '192.168.70.138',
+//   database: 'EZ_CRM_Acc',
+//   options: {
+//     encrypt: true,
+//     trustServerCertificate: true,
+//   },
+// };
 
 app.post('/login', (req, res) => {
   const username = req.body.username;

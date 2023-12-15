@@ -17,7 +17,6 @@
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "jsonwebtoken": "^9.0.2",
-    "msnodesqlv8": "^4.1.2",
     "mssql": "^9.3.0",
     "nodemon": "^3.0.1",
     "onesignal-node": "^3.4.0",
