@@ -105,9 +105,9 @@ app.get('/getErrorJobList', verifyToken, async (req, res) => {
   try {
     await sql.connect(config);
     const request = new sql.Request();
-    const userRoleRes = await request.query(`SELECT  Top 10 *
-    FROM ScraperJobs
-    WHERE ID NOT IN (SELECT JobId FROM ScraperJob_Push_Notification) ORDER BY ID DESC`);
+    const userRoleRes = await request.query(`SELECT  *
+    FROM    ScraperJobs
+    WHERE   ID NOT IN (SELECT JobId FROM ScraperJob_Push_Notification)`);
     res.json({
       flag: 1,
       status: 200,
@@ -145,8 +145,8 @@ app.get('/getErrorJobData', verifyToken, async (req, res) => {
   try {
     await sql.connect(config);
     const request = new sql.Request();
-    const userRoleRes = await request.query(`SELECT  Top 50 *
-    FROM ScraperJobs ORDER BY ID DESC`);
+    const userRoleRes = await request.query(`SELECT *
+    FROM ScraperJobs`);
     res.json({
       flag: 1,
       status: 200,
