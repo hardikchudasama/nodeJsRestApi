@@ -119,7 +119,7 @@ app.get('/sendPushNotification', async (req, res) => {
             'Authorization': "key=AAAAVbU7cvk:APA91bGINvDXLQtzvdxnlGxhq4i5RrS5Sov6ZoE-YG2WF86B3eRSLFlwufuHw1vyYC0VLsf0Gmo0p_TLAnQgrGVOUJgl-GS1phLH8jJlqZyFvRrkaI-lJtlFNzb363f-JIC5NwLgBaOJ"
           };
           const data = {
-            "to": req.body.devicetoken,
+            "to": "dQ7XP8mAQnaUO-LfwQ8--s:APA91bGXRYEBCHcvPnXWcggo92bDWOgCRKw2lrewzALAkZzhV3zwpkQlgEOzkzpL815n-078uLvF8LBDiJrMUeTTqP0T0lk7mw0PSgPHDukJn_mP3TfVCRlDsbm_98UoYSKMR_4_A0J1",
             "notification": {
               "title": 'Job Name : ' + element['JobName'],
               "body": element['ID'],
