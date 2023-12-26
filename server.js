@@ -103,8 +103,6 @@ app.get('/getPushNotificationList', verifyToken, async (req, res) => {
 
 app.post('/sendPushNotification', async (req, res) => {
   try {
-    console.log('tttttt===', req.body.devicetoken);
-
     setInterval(async () => {
       await sql.connect(config);
       const request = new sql.Request();
@@ -123,8 +121,8 @@ app.post('/sendPushNotification', async (req, res) => {
             "notification": {
               "title": 'Job Name : ' + element['JobName'],
               "body": element['ID'],
-              "click_action": "FCM_PLUGIN_ACTIVITY",  //Must be present for Android
-              "icon": "fcm_push_icon"
+              // "click_action": "FCM_PLUGIN_ACTIVITY",  //Must be present for Android
+              // "icon": "fcm_push_icon"
             },
             "data": {
               "title": element['JobName'],
