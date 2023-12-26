@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const axios = require('axios');
 const verifyToken = require('./verifyToken');
 var sql = require("mssql");
 const app = express();
@@ -55,8 +56,7 @@ app.post('/login', (req, res) => {
 
   if (username === 'admin' && password == '123456') {
     // Generate a token
-    const token = jwt.sign({ username }, 'H_154&^!!@$');  // Change 'your_secret_key' to your actual secret key
-
+    const token = jwt.sign({ username }, 'H_154&^!!@$' , { expiresIn: '1h' });  // Change 'your_secret_key' to your actual secret key
     // Send the token as response
     res.json({ token });
   } else {
@@ -96,6 +96,52 @@ app.get('/getPushNotificationList', verifyToken, async (req, res) => {
   } catch (error) {
     console.log('getPushNotificationList', error)
     res.status(500).json({ error: "An error occurred while fetched Push Notification." })
+  } finally {
+    sql.close();
+  }
+});
+
+app.get('/sendPushNotification', async (req, res) => {
+  try {
+    console.log('tttttt===', req.body.devicetoken);
+
+    setInterval(async () => {
+      await sql.connect(config);
+      const request = new sql.Request();
+      const dataNotExistInErrorLogTable = `SELECT s.ID, s.JobName, s.AccountNo    FROM ScraperJobs s    LEFT JOIN ScraperJob_Push_Notification e ON s.ID = e.JobId    WHERE e.JobId IS NULL`;
+      const result = await request.query(dataNotExistInErrorLogTable);
+      console.log('ScraperJobRecord', result['recordsets'][0]);
+      if (result['recordsets'][0] && result['recordsets'][0].length > 0) {
+        result['recordsets'][0].forEach(element => {
+          const fcmEndpoint = 'https://fcm.googleapis.com/fcm/send';
+          const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': "key=AAAAVbU7cvk:APA91bGINvDXLQtzvdxnlGxhq4i5RrS5Sov6ZoE-YG2WF86B3eRSLFlwufuHw1vyYC0VLsf0Gmo0p_TLAnQgrGVOUJgl-GS1phLH8jJlqZyFvRrkaI-lJtlFNzb363f-JIC5NwLgBaOJ"
+          };
+          const data = {
+            "to": req.body.devicetoken,
+            "notification": {
+              "title": 'Job Name : ' + element['JobName'],
+              "body": element['ID'],
+              "click_action": "FCM_PLUGIN_ACTIVITY",  //Must be present for Android
+              "icon": "fcm_push_icon"
+            },
+            "data": {
+              "title": element['JobName'],
+              "body": element['ID'],
+            },
+            "priority":"high"
+          }
+          const response = axios.post(fcmEndpoint, data, { headers });
+          const insertInPushNotificaitonTable = `INSERT INTO ScraperJob_Push_Notification (JobId, IsSentMail) VALUES ('${element.ID}',${element.ID})`;
+          const result = request.query(insertInPushNotificaitonTable);
+          console.log('Record Added Successfully:', result);
+          console.log('Notification response==>', response);
+        });
+      }
+    }, 60000); // Adjust the interval as per your requirement (300000ms = 5 minutes)        });    }});
+  } catch (error) {
+    res.status(500).json({ error: "An error occurred while fetched Error Job List." })
   } finally {
     sql.close();
   }
