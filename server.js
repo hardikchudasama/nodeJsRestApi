@@ -5,8 +5,14 @@ const cors = require('cors');
 const axios = require('axios');
 const verifyToken = require('./verifyToken');
 var sql = require("mssql");
+
 const app = express();
-app.options('*', cors());
+
+app.use(cors());
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
@@ -14,19 +20,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-// Enable CORS for all routes
-app.use(cors({ origin: '*' }));
-
-// Enable CORS for a specific route (OPTIONS method)
-// app.options('http://192.168.1.114:8081', cors());
-
-// support parsing of application/json type post data
-app.use(bodyParser.json());
-
-//support parsing of application/x-www-form-urlencoded post data
-app.use(bodyParser.urlencoded({ extended: true }));
-
-const port = process.env.port || process.env.PORT || 6565;
+const port = process.env.port || process.env.PORT || 3000;
 
 var config = {
   user: 'db_aa1d65_nodeserver_admin',
@@ -56,11 +50,53 @@ app.post('/login', (req, res) => {
 
   if (username === 'admin' && password == '123456') {
     // Generate a token
-    const token = jwt.sign({ username }, 'H_154&^!!@$' , { expiresIn: '1h' });  // Change 'your_secret_key' to your actual secret key
+    const token = jwt.sign({ username }, 'H_154&^!!@$', { expiresIn: '1h' });  // Change 'your_secret_key' to your actual secret key
+
     // Send the token as response
     res.json({ token });
   } else {
     res.status(401).json({ error: 'Invalid credentials' });
+  }
+});
+
+app.post('/sendPushNotification', verifyToken, async (req, res) => {
+  try {
+    setInterval(async () => {
+      await sql.connect(config);
+      const request = new sql.Request();
+      const dataNotExistInErrorLogTable = `SELECT Id, JobName FROM ScraperJobs WHERE Id NOT IN (SELECT JobId FROM ScraperJob_Push_Notification)`;
+      const result = await request.query(dataNotExistInErrorLogTable);
+      if (result['recordsets'][0] && result['recordsets'][0].length > 0) {
+        result['recordsets'][0].forEach(element => {
+          const fcmEndpoint = 'https://fcm.googleapis.com/fcm/send';
+          const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': "key=AAAAVbU7cvk:APA91bGINvDXLQtzvdxnlGxhq4i5RrS5Sov6ZoE-YG2WF86B3eRSLFlwufuHw1vyYC0VLsf0Gmo0p_TLAnQgrGVOUJgl-GS1phLH8jJlqZyFvRrkaI-lJtlFNzb363f-JIC5NwLgBaOJ"
+          };
+          const data = {
+            "to": req.body.devicetoken,
+            "notification": {
+              "title": element['JobName'],
+              "body": element['Id'],
+              "click_action": "FCM_PLUGIN_ACTIVITY",  //Must be present for Android
+              "icon": "fcm_push_icon"
+            },
+            "data": {
+              "title": element['JobName'],
+              "body": element['Id'],
+            },
+            "priority":"high"
+          }
+          const response = axios.post(fcmEndpoint, data, { headers });
+          const insertInPushNotificaitonTable = `INSERT INTO ScraperJob_Push_Notification (Id, JobName) VALUES (${element.Id},'Test')`;
+          const result = request.query(insertInPushNotificaitonTable);
+        });
+      }
+    }, 60000);
+  } catch (error) {
+    res.status(500).json({ error: "An error occurred while fetched Error Job List." })
+  } finally {
+    sql.close();
   }
 });
 
@@ -101,57 +137,13 @@ app.get('/getPushNotificationList', verifyToken, async (req, res) => {
   }
 });
 
-app.post('/sendPushNotification', async (req, res) => {
-  try {
-    setInterval(async () => {
-      await sql.connect(config);
-      const request = new sql.Request();
-      const dataNotExistInErrorLogTable = `SELECT s.ID, s.JobName, s.AccountNo    FROM ScraperJobs s    LEFT JOIN ScraperJob_Push_Notification e ON s.ID = e.JobId    WHERE e.JobId IS NULL`;
-      const result = await request.query(dataNotExistInErrorLogTable);
-      console.log('ScraperJobRecord', result['recordsets'][0]);
-      if (result['recordsets'][0] && result['recordsets'][0].length > 0) {
-        result['recordsets'][0].forEach(element => {
-          const fcmEndpoint = 'https://fcm.googleapis.com/fcm/send';
-          const headers = {
-            'Content-Type': 'application/json',
-            'Authorization': "key=AAAAVbU7cvk:APA91bGINvDXLQtzvdxnlGxhq4i5RrS5Sov6ZoE-YG2WF86B3eRSLFlwufuHw1vyYC0VLsf0Gmo0p_TLAnQgrGVOUJgl-GS1phLH8jJlqZyFvRrkaI-lJtlFNzb363f-JIC5NwLgBaOJ"
-          };
-          const data = {
-            "to": "ez1_ZRIFQr-h6tHQ6ZK39_:APA91bGzglD2xmGfMsmL_CcMANVEQVj69iYWLHskL8tqL9OaQ8xXT5GZTHAmimJzK4qAPP2vhXzFbCkFf1b18zSyETHwOnpcXvl8YfQFt_s0zongkve__drOrj70NKrFWh1bj8fxQ2SD",
-            "notification": {
-              "title": 'Job Name : ' + element['JobName'],
-              "body": element['ID'],
-              // "click_action": "FCM_PLUGIN_ACTIVITY",  //Must be present for Android
-              // "icon": "fcm_push_icon"
-            },
-            "data": {
-              "title": element['JobName'],
-              "body": element['ID'],
-            },
-            "priority":"high"
-          }
-          const response = axios.post(fcmEndpoint, data, { headers });
-          const insertInPushNotificaitonTable = `INSERT INTO ScraperJob_Push_Notification (JobId, IsSentMail) VALUES ('${element.ID}',${element.ID})`;
-          const result = request.query(insertInPushNotificaitonTable);
-          console.log('Record Added Successfully:', result);
-          console.log('Notification response==>', response);
-        });
-      }
-    }, 60000); // Adjust the interval as per your requirement (300000ms = 5 minutes)        });    }});
-  } catch (error) {
-    res.status(500).json({ error: "An error occurred while fetched Error Job List." })
-  } finally {
-    sql.close();
-  }
-});
-
 app.get('/getErrorJobList', verifyToken, async (req, res) => {
   try {
     await sql.connect(config);
     const request = new sql.Request();
-    const userRoleRes = await request.query(`SELECT  *
-    FROM    ScraperJobs
-    WHERE   ID NOT IN (SELECT JobId FROM ScraperJob_Push_Notification)`);
+    const userRoleRes = await request.query(`SELECT  Top 10 *
+    FROM ScraperJobs
+    WHERE ID NOT IN (SELECT JobId FROM ScraperJob_Push_Notification) ORDER BY ID DESC`);
     res.json({
       flag: 1,
       status: 200,
@@ -189,8 +181,8 @@ app.get('/getErrorJobData', verifyToken, async (req, res) => {
   try {
     await sql.connect(config);
     const request = new sql.Request();
-    const userRoleRes = await request.query(`SELECT *
-    FROM ScraperJobs`);
+    const userRoleRes = await request.query(`SELECT  Top 50 *
+    FROM ScraperJobs ORDER BY ID DESC`);
     res.json({
       flag: 1,
       status: 200,
