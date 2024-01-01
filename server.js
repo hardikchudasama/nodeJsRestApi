@@ -20,6 +20,9 @@ app.use(function (req, res, next) {
 });
 
 app.use(cors());
+app.use(cors({
+  origin: 'https://nodejsrestapi.onrender.com'
+}));
 
 
 const port = process.env.port || process.env.PORT || 8081;
