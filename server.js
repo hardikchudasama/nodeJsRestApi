@@ -94,6 +94,7 @@ app.post('/sendPushNotification', verifyToken, async (req, res) => {
           const insertInPushNotificaitonTable = `INSERT INTO ScraperJob_Push_Notification (JobId,IsSentMail) VALUES (${element.Id},1)`;
           const result = request.query(insertInPushNotificaitonTable);
         });
+        res.end();
       }
     }, 60000);
   } catch (error) {
