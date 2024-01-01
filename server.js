@@ -96,7 +96,7 @@ app.post('/sendPushNotification', verifyToken, async (req, res) => {
         });
         res.end();
       }
-    }, 60000);
+    }, 30000);
   } catch (error) {
     res.status(500).json({ error: "An error occurred while fetched Error Job List." })
   } finally {
