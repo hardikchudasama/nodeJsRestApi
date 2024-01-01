@@ -8,6 +8,7 @@ var sql = require("mssql");
 
 const app = express();
 
+app.use(cors());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -20,7 +21,6 @@ app.use(function (req, res, next) {
 });
 
 const port = process.env.port || process.env.PORT || 8081;
-app.use(cors());
 
 var config = {
   user: 'db_aa1d65_nodeserver_admin',
