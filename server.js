@@ -8,7 +8,6 @@ var sql = require("mssql");
 
 const app = express();
 
-app.use(cors());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -21,6 +20,7 @@ app.use(function (req, res, next) {
 });
 
 const port = process.env.port || process.env.PORT || 8081;
+app.use(cors());
 
 var config = {
   user: 'db_aa1d65_nodeserver_admin',
@@ -88,11 +88,11 @@ app.post('/sendPushNotification', verifyToken, async (req, res) => {
             "priority":"high"
           }
           const response = axios.post(fcmEndpoint, data, { headers });
-          const insertInPushNotificaitonTable = `INSERT INTO ScraperJob_Push_Notification (Id, JobName) VALUES (${element.Id},'Test')`;
+          const insertInPushNotificaitonTable = `INSERT INTO ScraperJob_Push_Notification (Id, JobId,IsSentMail) VALUES (${element.Id},${element.Id},1)`;
           const result = request.query(insertInPushNotificaitonTable);
         });
       }
-    }, 60000);
+    }, 120000);
   } catch (error) {
     res.status(500).json({ error: "An error occurred while fetched Error Job List." })
   } finally {
