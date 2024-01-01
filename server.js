@@ -7,7 +7,6 @@ const verifyToken = require('./verifyToken');
 var sql = require("mssql");
 
 const app = express();
-app.use(cors());
 app.use(cors({ origin: '*' }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
