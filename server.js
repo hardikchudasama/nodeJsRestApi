@@ -20,7 +20,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-const port = process.env.port || process.env.PORT || 3000;
+const port = process.env.port || process.env.PORT || 8081;
 
 var config = {
   user: 'db_aa1d65_nodeserver_admin',
