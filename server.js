@@ -88,7 +88,7 @@ app.post('/sendPushNotification', verifyToken, async (req, res) => {
             "priority":"high"
           }
           const response = axios.post(fcmEndpoint, data, { headers });
-          const insertInPushNotificaitonTable = `INSERT INTO ScraperJob_Push_Notification (Id, JobId,IsSentMail) VALUES (${element.Id},${element.Id},1)`;
+          const insertInPushNotificaitonTable = `INSERT INTO ScraperJob_Push_Notification (JobId,IsSentMail) VALUES (${element.Id},1)`;
           const result = request.query(insertInPushNotificaitonTable);
         });
       }
