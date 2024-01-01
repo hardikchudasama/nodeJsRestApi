@@ -20,6 +20,7 @@ app.use(function (req, res, next) {
 });
 
 app.use(cors());
+app.options('*', cors());
 
 const port = process.env.port || process.env.PORT || 8081;
 
