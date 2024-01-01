@@ -21,7 +21,7 @@ app.use(function (req, res, next) {
 
 app.use(cors());
 app.use(cors({
-  origin: 'https://nodejsrestapi.onrender.com'
+  origin: 'https://nodejsrestapi.onrender.com/getErrorJobData'
 }));
 
 
