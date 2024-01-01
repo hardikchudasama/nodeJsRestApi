@@ -19,10 +19,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(cors());
-app.use(cors({
-  origin: 'https://nodejsrestapi.onrender.com/getErrorJobData'
-}));
+app.use(cors({ origin: '*' }));
 
 
 const port = process.env.port || process.env.PORT || 8081;
