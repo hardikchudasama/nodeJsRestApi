@@ -90,12 +90,11 @@ app.post('/sendPushNotification', verifyToken, async (req, res) => {
             "priority":"high"
           }
           const response = axios.post(fcmEndpoint, data, { headers });
-          // const insertInPushNotificaitonTable = `INSERT INTO ScraperJob_Push_Notification (Id, JobName,) VALUES (${element.Id},'Test')`;
           const insertInPushNotificaitonTable = `INSERT INTO ScraperJob_Push_Notification (JobId,IsSentMail) VALUES (${element.Id},1)`;
           const result = request.query(insertInPushNotificaitonTable);
         });
       }
-    }, 30000);
+    }, 120000);
   } catch (error) {
     res.status(500).json({ error: "An error occurred while fetched Error Job List." })
   } finally {
