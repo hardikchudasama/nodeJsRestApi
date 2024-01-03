@@ -8,6 +8,7 @@ var sql = require("mssql");
 
 const app = express();
 
+app.use(cors());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -19,9 +20,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(cors({ origin: '*' }));
-
-
+// const ipAddress = '192.168.1.114';
 const port = process.env.port || process.env.PORT || 8081;
 
 var config = {
@@ -90,11 +89,10 @@ app.post('/sendPushNotification', verifyToken, async (req, res) => {
             "priority":"high"
           }
           const response = axios.post(fcmEndpoint, data, { headers });
-          // const insertInPushNotificaitonTable = `INSERT INTO ScraperJob_Push_Notification (Id, JobName) VALUES (${element.Id},'Test')`;
+          // const insertInPushNotificaitonTable = `INSERT INTO ScraperJob_Push_Notification (Id, JobName,) VALUES (${element.Id},'Test')`;
           const insertInPushNotificaitonTable = `INSERT INTO ScraperJob_Push_Notification (JobId,IsSentMail) VALUES (${element.Id},1)`;
           const result = request.query(insertInPushNotificaitonTable);
         });
-        res.end();
       }
     }, 30000);
   } catch (error) {
@@ -246,6 +244,6 @@ app.post('/insertRecordInSet', verifyToken, async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server running at ${port}`);
+  console.log(`Server is listening on ${port}`);
 });
 
