@@ -1,11 +1,16 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const axios = require('axios');
 const verifyToken = require('./verifyToken');
 var sql = require("mssql");
 
 const app = express();
+
+app.use(cors());
+
+
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
